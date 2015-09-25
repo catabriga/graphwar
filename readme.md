@@ -15,9 +15,9 @@ However, there is a problem. The function must be shot by your soldier, but ther
 
 In this mode you enter a first order differential equation instead of a function. For example:
 
-y' = 3*sin(x)+2
-y' = -y/3
-y' = 1/(x+y)
+* y' = 3*sin(x)+2
+* y' = -y/3
+* y' = 1/(x+y)
 
 On this mode no constant is added to your function. Instead your soldier position is used as the initial condition to solve the differential equation and the graph fired is the actual solution.
 
@@ -26,9 +26,9 @@ On this mode no constant is added to your function. Instead your soldier positio
 
 The second order differential equation mode is very similar to the first order mode, but now you enter a second order differential equation:
 
-y'' = -y + y' + 2*x - 1
-y'' = 4*sin(x) + 2^x
-y'' = 1.04^(-(x+ y)^2)
+* y'' = -y + y' + 2*x - 1
+* y'' = 4*sin(x) + 2^x
+* y'' = 1.04^(-(x+ y)^2)
 
 To have a unique solution, a second order differential equation must have two initial conditions, the first is the soldier's position and the second is the firing angle. You can change the firing angle by pressing up and down on the keyboard. Also note that this is the only mode that the angle affects the function.
 
