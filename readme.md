@@ -104,9 +104,9 @@ To run the game execute graphwar.jar.
 To run a local server and connect to it you must pass the ip of the local server to graphwar
 and to the globalServer as a command line argument. So to start a server locally the commands are:
 
-* java -jar globalServer.jar <your-server-ip>
+* java -jar globalServer.jar [your-server-ip]
 * java -jar roomServer.jar
-* java -jar graphwar.har <your-server-ip>
+* java -jar graphwar.har [your-server-ip]
 
 The roomServer must be run on the same machine as the globalServer.
 
