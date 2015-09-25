@@ -37,7 +37,7 @@ To have a unique solution, a second order differential equation must have two in
 
 ## Common Pitfalls
 
-![cam](/../screenshots/ss2graphwar.png?raw=true)
+![cam](/../screenshots/ss2Graphwar.png?raw=true)
 
 The translation of the function have some confusing consequences. First, any constant added to your function is irrelevant to the result. For example, the functions y = 2*x + 3, y = 2*x - 8 and y = 2*x yield the exact same graph in the game.
 
