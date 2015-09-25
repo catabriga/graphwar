@@ -3,6 +3,8 @@
 
 Graphwar is an artillery game in which you must hit your enemies using mathematical functions. The trajectory of your shot is determined by the function you wrote, and your goal is to avoid the obstacles and your teammates and hit your enemies. The game takes place in a Cartesian Plane.
 
+![cam](/../screenshot/ss1graphwar.png?raw=true)
+
 ## Game Modes
 
 ## Normal Function 
@@ -34,6 +36,8 @@ To have a unique solution, a second order differential equation must have two in
 
 
 ## Common Pitfalls
+
+![cam](/../screenshot/ss2graphwar.png?raw=true)
 
 The translation of the function have some confusing consequences. First, any constant added to your function is irrelevant to the result. For example, the functions y = 2*x + 3, y = 2*x - 8 and y = 2*x yield the exact same graph in the game.
 
