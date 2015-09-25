@@ -47,36 +47,36 @@ As was just pointed out functions may explode spontaneously. That means it had a
 
 ### Variables
 
-x
-y
-y'
+* x
+* y
+* y'
 
 ### Operators
 
-+
--
-/
-*
-^
+* +
+* -
+* /
+* *
+* ^
 
 ### Functions
 
-sqrt()
-log()
-ln()
-abs()
-sin()
-cos()
-tan()
-exp()
+* sqrt()
+* log()
+* ln()
+* abs()
+* sin()
+* cos()
+* tan()
+* exp()
 
 ### Other Examples
 
-y = ((x-3)^2)/20
-y = ln(abs(x))
-y = sin(x/20)*5
-y' = 1.2^x
-y'' = (1.2^(-(x+3)^2))*(20*(-y))
+* y = ((x-3)^2)/20
+* y = ln(abs(x))
+* y = sin(x/20)*5
+* y' = 1.2^x
+* y'' = (1.2^(-(x+3)^2))*(20*(-y))
 
 Using lots of parentheses is recommended to avoid misinterpretation, for example y = 1/x+2 is going to be understood as (1/x) + 2, you should use 1/(x+2).
 
@@ -85,11 +85,12 @@ Using lots of parentheses is recommended to avoid misinterpretation, for example
 
 The available commands are:
 
--skip : If everyone playing uses this command, the current map is skipped and a new one is generated.
--sayfunc : If you use this you are going to see on your chat the function that everyone else is using.
--stopsayfunc : This will stop the functions from appearing on your chat after you used -sayfunc.
--shownext : This will highlight the next soldier to play for each player with a dark circle. This is useful to plan functions ahead of time.
--stopshownext : Stops showing the next soldier to play.
+* -skip : If everyone playing uses this command, the current map is skipped and a new one is generated.
+* -sayfunc : If you use this you are going to see on your chat the function that everyone else is using.
+* -stopsayfunc : This will stop the functions from appearing on your chat after you used -sayfunc.
+* -shownext : This will highlight the next soldier to play for each player with a dark circle. This is useful to plan functions ahead of time.
+* -stopshownext : Stops showing the next soldier to play.
+
 Just type them on the game chat to use them.
 
 ## Running Local Servers
@@ -97,9 +98,9 @@ Just type them on the game chat to use them.
 To run a local server and connect to it you must pass the ip of the local server to graphwar
 and to the globalServer as a command line argument. So to start a server locally the commands are:
 
-java -jar globalServer.jar <your-server-ip>
-java -jar roomServer.jar
-java -jar graphwar.har <your-server-ip>
+* java -jar globalServer.jar <your-server-ip>
+* java -jar roomServer.jar
+* java -jar graphwar.har <your-server-ip>
 
 The roomServer must be run on the same machine as the globalServer.
 
