@@ -93,6 +93,12 @@ The available commands are:
 
 Just type them on the game chat to use them.
 
+## Running The Game
+
+Compile the game using the make command (or on your favorite IDE).
+
+To run the game execute graphwar.jar.
+
 ## Running Local Servers
 
 To run a local server and connect to it you must pass the ip of the local server to graphwar
