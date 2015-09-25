@@ -34,6 +34,8 @@ public class Graphwar extends JFrame
 	
 	public static void main(String[] args)
 	{
+		handleArgs(args);
+		
 		Graphwar graphwar = new Graphwar();
 				
 		graphwar.init();
@@ -47,6 +49,15 @@ public class Graphwar extends JFrame
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public static void handleArgs(String[] args)
+	{
+		if(args.length > 0)
+		{
+			// Overrides ip to create local server
+			Constants.GLOBAL_IP = args[0];
 		}
 	}
 	

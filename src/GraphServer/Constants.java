@@ -33,7 +33,7 @@ public class Constants
 	public static final int TIMEOUT_KEEPALIVE = 5000;
 	public static final int TIMEOUT_DROP = 30000;
 	
-	public static final String GLOBAL_IP = "www.graphwar.com";
+	public static String GLOBAL_IP = "www.graphwar.com";
 	public static final int DEFAULT_PORT = 6112;
 	public static final int GLOBAL_PORT = 23761;
 	public static final int PUBLIC_ROOM_PORT = 28842;

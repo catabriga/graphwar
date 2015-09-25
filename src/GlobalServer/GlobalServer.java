@@ -453,10 +453,19 @@ public class GlobalServer implements Runnable
 			
 	}
 	
+		
+	public static void handleArgs(String[] args)
+	{
+		if(args.length > 0)
+		{
+			// Overrides ip to create local server
+			Constants.GLOBAL_IP = args[0];
+		}
+	}	
 	
 	public static void main(String[] args)
 	{
-		System.out.println(Constants.DUMMY_NAME.compareTo(Constants.DUMMY_NAME));
+		handleArgs(args);
 		
 		GlobalServer server = new GlobalServer();
 		
