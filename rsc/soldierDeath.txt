@@ -1,0 +1,14 @@
+5
+
+/rsc/soldiers/soldierExplosion1Small.png
+25
+/rsc/soldiers/soldierExplosion2Small.png
+25
+/rsc/soldiers/soldierExplosion3Small.png
+25
+/rsc/soldiers/soldierExplosion4Small.png
+25
+/rsc/soldiers/soldierExplosion5Small.png
+4000
+
+1000

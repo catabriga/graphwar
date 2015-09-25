@@ -1,0 +1,10 @@
+4
+
+/rsc/soldiers/currentPlayer1.png
+50
+/rsc/soldiers/currentPlayer1.png
+150
+/rsc/soldiers/currentPlayer1.png
+50
+/rsc/soldiers/currentPlayer1.png
+1600

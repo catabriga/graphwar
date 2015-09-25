@@ -1,0 +1,17 @@
+7
+
+/rsc/explosions/explosion0.png
+15
+/rsc/explosions/explosion1.png
+15
+/rsc/explosions/explosion2.png
+15
+/rsc/explosions/explosion3.png
+15
+/rsc/explosions/explosion4.png
+15
+/rsc/explosions/explosion5.png
+15
+/rsc/explosions/blank.png
+1000
+
