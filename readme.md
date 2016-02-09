@@ -110,7 +110,7 @@ and to the globalServer as a command line argument. So to start a server locally
 
 * java -jar globalServer.jar [your-server-ip]
 * java -jar roomServer.jar
-* java -jar graphwar.har [your-server-ip]
+* java -jar graphwar.jar [your-server-ip]
 
 The roomServer must be run on the same machine as the globalServer.
 
