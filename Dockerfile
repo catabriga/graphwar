@@ -1,4 +1,4 @@
-FROM java:openjdk-7-jdk-alpine
+FROM java:openjdk-7-jdk
 
 RUN mkdir /compile
 
