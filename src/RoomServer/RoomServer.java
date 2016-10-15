@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import GraphServer.Constants;
+
 public class RoomServer implements Runnable
 {
 	private List<Room> rooms;
@@ -139,9 +141,20 @@ public class RoomServer implements Runnable
 		}		
 		
 	}
+
+	public static void handleArgs(String[] args)
+	{
+		if(args.length > 0)
+		{
+			// Overrides ip to create local server
+			Constants.GLOBAL_IP = args[0];
+		}
+	}
 	
 	public static void main(String[] args)
 	{
+		handleArgs(args);
+
 		RoomServer roomServer = new RoomServer();
 		
 		new Thread(roomServer).start();
