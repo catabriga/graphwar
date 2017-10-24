@@ -57,10 +57,10 @@ As was just pointed out functions may explode spontaneously. That means it had a
 
 ### Operators
 
-* +
-* -
+* \+
+* \-
 * /
-* *
+* \*
 * ^
 
 ### Functions
