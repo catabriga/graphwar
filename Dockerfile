@@ -1,7 +1,9 @@
 FROM java:openjdk-7-jdk
 
-RUN mkdir /compile
-
 WORKDIR /compile
 
-CMD [ "./compile.sh" ]
+ADD compile.sh /compile/
+ADD rsc/ /compile/rsc
+ADD src/ /compile/src
+
+RUN [ "./compile.sh"]
