@@ -442,6 +442,11 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 			}
 		}
 	}
+
+	public void updateFunction(String function)
+	{
+		funcField.setText(function);
+	}
 	
 	public void startDrawingFunction()
 	{
@@ -541,6 +546,9 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 				graphwar.getGameData().angleDown();
 			}
 		}
+
+		String function = funcField.getText();
+		graphwar.getGameData().sendFunctionPreview(function);
 	}
 
 	public void keyReleased(KeyEvent e) 

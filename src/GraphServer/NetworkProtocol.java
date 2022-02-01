@@ -53,6 +53,7 @@ public class NetworkProtocol
 	public static final int NEW_LEADER = 41;
 	public static final int START_COUNTDOWN = 42;
 	public static final int REORDER = 43;
+	public static final int FUNCTION_PREVIEW = 44;
 	
 	public static final int JOIN = 101;
 	public static final int SAY_CHAT = 102;

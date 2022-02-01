@@ -1,7 +1,7 @@
 all:
 
 	mkdir -p bin
-	javac -Xlint:deprecation -d bin/ -sourcepath src/ -classpath bin/ src/Graphwar/*.java src/GraphServer/*.java src/GlobalServer/*.java src/RoomServer/*.java
+	javac -Xlint:deprecation -source 1.6 -target 1.6 -d bin/ -sourcepath src/ -classpath bin/ src/Graphwar/*.java src/GraphServer/*.java src/GlobalServer/*.java src/RoomServer/*.java
 	cp -r bin/Graphwar Graphwar
 	cp -r bin/GraphServer GraphServer
 	cp -r bin/GlobalServer GlobalServer

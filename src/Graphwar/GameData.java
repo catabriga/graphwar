@@ -282,6 +282,24 @@ public class GameData implements Runnable
 			e.printStackTrace();
 		}
 	}
+
+	public void sendFunctionPreview(String functionPreview)
+	{
+		Player currentPlayer = getCurrentTurnPlayer();
+
+		if(currentPlayer.isLocalPlayer() && drawingFunction == false)
+		{
+			try
+			{
+				String message = NetworkProtocol.FUNCTION_PREVIEW+"&"+currentPlayer.getID()+"&"+URLEncoder.encode(functionPreview, "UTF-8");
+				serverConnection.sendMessage(message);
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	public void sendFunction(String function)
 	{
@@ -923,6 +941,22 @@ public class GameData implements Runnable
 			}
 		}
 	}
+
+	private void updateFunctionMessage(String[] info) throws Exception
+	{
+		if(info.length == 3 && drawingFunction == false)
+		{
+			int playerID = Integer.parseInt(info[1]);
+			String function = URLDecoder.decode(info[2], "UTF-8");
+
+			Player player = getPlayer(playerID);
+
+			if(players.get(currentTurn).getID() == playerID && player.isLocalPlayer() == false)
+			{
+				((GameScreen)graphwar.getUI().getScreen(Constants.GAME_SCREEN)).updateFunction(function);
+			}
+		}
+	}
 	
 	public boolean isDrawingFunction()
 	{
@@ -1335,6 +1369,11 @@ public class GameData implements Runnable
 				case NetworkProtocol.REORDER:
 				{
 					reorderMessage(info);
+				}break;
+
+				case NetworkProtocol.FUNCTION_PREVIEW:
+				{
+					updateFunctionMessage(info);
 				}break;
 				
 				case NetworkProtocol.GAME_FULL:				

@@ -1213,6 +1213,16 @@ public class GraphServer implements Runnable
 						sendMessageAll(message);						
 					}
 				}break;
+
+				case NetworkProtocol.FUNCTION_PREVIEW:
+				{
+					int playerID = Integer.parseInt(info[1]);
+
+					if(checkPlayer(playerID, client) && gameState == Constants.GAME)
+					{
+						sendMessageAll(message);
+					}
+				}break;
 				
 				case NetworkProtocol.TIME_UP:
 				{

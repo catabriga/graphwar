@@ -75,7 +75,7 @@ public class PreGameScreen extends JPanel implements ActionListener
 	private JLabel messageLabel;
 	private boolean showMessageVisible;
 	
-	private AudioClip addPlayerSound;
+	// private AudioClip addPlayerSound;
 	
 	private static Font font = new Font("Sans", Font.BOLD, 12);
 			
@@ -232,7 +232,7 @@ public class PreGameScreen extends JPanel implements ActionListener
 		this.revalidate();
 		
 		
-		addPlayerSound = GraphUtil.makeAudioClip(graphwar, read);
+		// addPlayerSound = GraphUtil.makeAudioClip(graphwar, read);
 		
 	}
 	
@@ -416,7 +416,7 @@ public class PreGameScreen extends JPanel implements ActionListener
 	{
 		playerBoard.addPlayer(player);
 		
-		new AudioPlayer(addPlayerSound);			
+		// new AudioPlayer(addPlayerSound);
 	}
 	
 	public void updatePlayer(Player player)
