@@ -106,11 +106,14 @@ public class RoomServer implements Runnable
 					}						
 				}
 			}
+
+			System.out.println("numEmpty: "+numEmpty);
 			
 			if(numEmpty<3)
 			{
 				try
 				{
+					System.out.println("Adding room");
 					Room room = new Room(numRooms);
 					rooms.add(room);
 					numRooms++;
@@ -126,12 +129,16 @@ public class RoomServer implements Runnable
 				
 				if(room.getNumCLients() == 0)
 				{
+					System.out.println("Removing room");
+
 					room.stop();
 					rooms.remove(room);
 					numRooms--;
 				}
 			}
 		}
+
+		System.out.println("Stopping");
 		
 		ListIterator<Room> itr = rooms.listIterator();		
 		while(itr.hasNext())

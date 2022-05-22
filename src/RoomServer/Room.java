@@ -56,7 +56,7 @@ public class Room
 	
 	public boolean isAcceptingConnections()
 	{
-		return gameServer.isAcceptingConnections();// && globalClient.isRoomListed();
+		return gameServer.isAcceptingConnections() && globalClient.isRoomListed();
 	}
 	
 	public void printInfo()
