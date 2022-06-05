@@ -231,7 +231,7 @@ public class GlobalServer implements Runnable
 			{				
 				case NetworkProtocol.NO_INFO:
 				{
-					
+					player.sendMessage(NetworkProtocol.NO_INFO+"");
 				}break;
 			
 				case NetworkProtocol.SAY_CHAT:

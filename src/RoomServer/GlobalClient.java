@@ -42,6 +42,7 @@ public class GlobalClient implements Runnable
 	private int roomID;
 	private String roomName;
 	private int roomPort;
+	private long last_keep_alive_time;
 	
 	
 	public GlobalClient()
@@ -85,7 +86,9 @@ public class GlobalClient implements Runnable
 	
 	public boolean isRoomListed()
 	{
-		return roomListed;
+		boolean timed_out = (System.currentTimeMillis()-last_keep_alive_time) > 10000;
+
+		return roomListed && (!timed_out);
 	}
 	
 	private void handleMessage(String message)
@@ -103,6 +106,11 @@ public class GlobalClient implements Runnable
 			
 			switch(code)
 			{		
+				case NetworkProtocol.NO_INFO:
+				{
+					last_keep_alive_time = System.currentTimeMillis();
+				}
+
 				case NetworkProtocol.CREATE_ROOM:
 				{
 					if(info.length == 5)

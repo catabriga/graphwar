@@ -62,8 +62,8 @@ public class Room
 	public void printInfo()
 	{
 		System.out.print("Room "+roomNum+": ");
-		System.out.print(this.getNumCLients()+"clients; ");
-		System.out.print(gameServer.getNumPlayers()+"players; ");
+		System.out.print(this.getNumCLients()+" clients; ");
+		System.out.print(gameServer.getNumPlayers()+" players; ");
 		System.out.print("state: "+gameServer.getGameState()+"; ");
 		System.out.print("accepting connections: "+gameServer.isAcceptingConnections()+"; ");
 		System.out.print("room listed: "+globalClient.isRoomListed()+"; ");
