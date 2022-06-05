@@ -66,6 +66,7 @@ public class Room
 		System.out.print(gameServer.getNumPlayers()+"players; ");
 		System.out.print("state: "+gameServer.getGameState()+"; ");
 		System.out.print("accepting connections: "+gameServer.isAcceptingConnections()+"; ");
+		System.out.print("room listed: "+globalClient.isRoomListed()+"; ");
 		System.out.println();
 		
 	}

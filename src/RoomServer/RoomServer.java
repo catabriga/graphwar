@@ -78,7 +78,7 @@ public class RoomServer implements Runnable
 			{
 				Room room = itr.next();
 				
-				//room.printInfo();
+				room.printInfo();
 				
 				if(room.getNumCLients() == 0)
 				{
