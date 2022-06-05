@@ -133,6 +133,8 @@ public class GlobalClient implements Runnable
 					{						
 						int numRooms = Integer.parseInt(info[1]);
 						
+						System.out.println("LIST_ROOMS " + this.roomName + " " + numRooms);
+
 						this.roomListed = false;
 						for(int i=0; i<numRooms; i++)
 						{
@@ -157,6 +159,8 @@ public class GlobalClient implements Runnable
 								e.printStackTrace();
 							}							
 						}
+
+						System.out.println("roomListed " + this.roomName + " " + roomListed);
 					}
 				}break;
 				
