@@ -18,6 +18,7 @@ package GlobalServer;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLEncoder;
@@ -47,7 +48,9 @@ public class GlobalServer implements Runnable
        
 		try
 		{
-			serverSocket = new ServerSocket(Constants.GLOBAL_PORT);
+			serverSocket = new ServerSocket();
+			serverSocket.setReuseAddress(true);
+			serverSocket.bind(new InetSocketAddress(Constants.GLOBAL_PORT));
 		}
 		catch (IOException e) 
 		{
@@ -366,7 +369,10 @@ public class GlobalServer implements Runnable
 		try
 		{
 			serverSocket.close();
-			serverSocket = new ServerSocket(Constants.GLOBAL_PORT);
+
+			serverSocket = new ServerSocket();
+			serverSocket.setReuseAddress(true);
+			serverSocket.bind(new InetSocketAddress(Constants.GLOBAL_PORT));
 		}
 		catch (IOException e) 
 		{

@@ -105,6 +105,6 @@ public class GraphAngleDisplay extends JPanel
 		int tempAngle = (int)(angleDegree+0.5);		
 		angleDegree = ((double)(tempAngle))/100;
 		
-		g.drawString(Double.toString(angleDegree)+"°", 145, 108);
+		g.drawString(Double.toString(angleDegree)+"\u00B0", 145, 108);
 	}
 }
