@@ -16,14 +16,20 @@
 //  along with Graphwar.  If not, see <http://www.gnu.org/licenses/>.
 package GlobalServer;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import GraphServer.Connection;
@@ -36,26 +42,34 @@ public class GlobalServer implements Runnable
 	ServerSocket serverSocket;
 	private List<LobbyPlayer> players;
 	private List<Room> rooms;
-		
+
 	private long lastRoomCheck;
-	
+
+	private static final String STATUS_FILE = "/home/graphwar/graphwar/status.html";
+	private static final long STATUS_INTERVAL = 30 * 1000;
+
 	public GlobalServer()
 	{
 		this.players = new Vector<LobbyPlayer>();
 		this.rooms = new Vector<Room>();
-		
+
 		lastRoomCheck = System.currentTimeMillis();
-       
+
 		try
 		{
 			serverSocket = new ServerSocket();
 			serverSocket.setReuseAddress(true);
 			serverSocket.bind(new InetSocketAddress(Constants.GLOBAL_PORT));
 		}
-		catch (IOException e) 
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
+
+		Timer statusTimer = new Timer(true);
+		statusTimer.scheduleAtFixedRate(new TimerTask() {
+			public void run() { writeStatus(); }
+		}, 0, STATUS_INTERVAL);
 	}
 	
 	public void registerNewPlayer(LobbyPlayer newPlayer)
@@ -432,6 +446,82 @@ public class GlobalServer implements Runnable
 		}
 	}
 	
+	private String escapeHtml(String s)
+	{
+		return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+	}
+
+	private void writeStatus()
+	{
+		List<LobbyPlayer> playerSnapshot;
+		synchronized(players)
+		{
+			playerSnapshot = new Vector<LobbyPlayer>(players);
+		}
+
+		List<Room> roomSnapshot;
+		synchronized(rooms)
+		{
+			roomSnapshot = new Vector<Room>(rooms);
+		}
+
+		int playerCount = 0;
+		for (LobbyPlayer p : playerSnapshot)
+		{
+			if (!p.isDummy()) playerCount++;
+		}
+
+		String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(new Date());
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("<!DOCTYPE html>\n<html>\n<head>\n");
+		sb.append("<meta charset=\"utf-8\">\n");
+		sb.append("<meta http-equiv=\"refresh\" content=\"30\">\n");
+		sb.append("<title>Graphwar Status</title>\n");
+		sb.append("<style>\n");
+		sb.append("body{font-family:sans-serif;max-width:600px;margin:40px auto;color:#222;}\n");
+		sb.append("h1{border-bottom:2px solid #888;padding-bottom:8px;}\n");
+		sb.append(".stat{font-size:1.2em;margin:8px 0;}\n");
+		sb.append("table{border-collapse:collapse;width:100%;margin-top:20px;}\n");
+		sb.append("th,td{padding:8px 12px;border:1px solid #ccc;text-align:left;}\n");
+		sb.append("th{background:#f0f0f0;}\n");
+		sb.append("</style>\n</head>\n<body>\n");
+		sb.append("<h1>Graphwar Server Status</h1>\n");
+		sb.append("<p style=\"color:#666\">Updated: ").append(timestamp).append("</p>\n");
+		sb.append("<p class=\"stat\">Players online: <strong>").append(playerCount).append("</strong></p>\n");
+		sb.append("<p class=\"stat\">Rooms open: <strong>").append(roomSnapshot.size()).append("</strong></p>\n");
+
+		if (!roomSnapshot.isEmpty())
+		{
+			sb.append("<table>\n<tr><th>Room</th><th>Players</th><th>Status</th></tr>\n");
+			for (Room room : roomSnapshot)
+			{
+				String mode;
+				switch (room.getGameMode())
+				{
+					case Constants.GAME:     mode = "In game";  break;
+					case Constants.PRE_GAME: mode = "Starting"; break;
+					default:                 mode = "Waiting";  break;
+				}
+				sb.append("<tr><td>").append(escapeHtml(room.getName()))
+				  .append("</td><td>").append(room.getNumPlayers())
+				  .append("</td><td>").append(mode).append("</td></tr>\n");
+			}
+			sb.append("</table>\n");
+		}
+
+		sb.append("</body>\n</html>\n");
+
+		try (PrintWriter pw = new PrintWriter(new FileWriter(STATUS_FILE)))
+		{
+			pw.print(sb.toString());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	public void run()
 	{
 		while(true)
