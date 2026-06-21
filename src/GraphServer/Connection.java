@@ -83,7 +83,7 @@ public class Connection
 		return this.lastReceivedTime;
 	}
 	
-	public void sendMessage(String message)
+	public synchronized void sendMessage(String message)
 	{
 		out.println(message);
 		lastSentTime = System.currentTimeMillis();

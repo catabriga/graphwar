@@ -143,13 +143,13 @@ public class LobbyPlayer implements Runnable
 				this.dummy = false;
 			}
 		}
-		catch (IOException e1) 
+		catch (IOException e1)
 		{
 			e1.printStackTrace();
-			
-			disconnect();
+
+			this.globalServer.removePlayer(this);
 			return;
-		} 
+		}
 		
 		this.globalServer.registerNewPlayer(this);
 		this.globalServer.sendListPlayers(this);

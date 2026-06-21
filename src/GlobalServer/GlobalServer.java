@@ -213,7 +213,7 @@ public class GlobalServer implements Runnable
     	player.sendMessage(message);
     }
     
-	public synchronized void handleMessage(String message, LobbyPlayer player)
+	public void handleMessage(String message, LobbyPlayer player)
 	{		
 		String[] info = new String[0];
 
@@ -351,14 +351,15 @@ public class GlobalServer implements Runnable
 		if(connected)
 		{
 			Connection connection = new Connection(tempSocket);
-			
+
 			LobbyPlayer player = new LobbyPlayer(connection, this);
-			new Thread(player).start();
-			
+
 			synchronized(players)
 			{
 				this.players.add(player);
 			}
+
+			new Thread(player).start();
 		}
 	}
 	
