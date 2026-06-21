@@ -143,17 +143,18 @@ public class GlobalServer implements Runnable
     private void sendMessageAll(String message)
     {
     	//System.out.println("Sent to everyone: "+message);
-    	
+
+    	List<LobbyPlayer> snapshot;
     	synchronized(players)
     	{
-	    	ListIterator<LobbyPlayer> itr = players.listIterator();
-	    	
-	    	while(itr.hasNext())
-	    	{
-	    		LobbyPlayer player = itr.next();
-	    		
-	    		player.sendMessage(message);
-	    	}
+    		snapshot = new Vector<LobbyPlayer>(players);
+    	}
+
+    	ListIterator<LobbyPlayer> itr = snapshot.listIterator();
+    	while(itr.hasNext())
+    	{
+    		LobbyPlayer player = itr.next();
+    		player.sendMessage(message);
     	}
     }
     
@@ -385,45 +386,48 @@ public class GlobalServer implements Runnable
 		if(System.currentTimeMillis() - lastRoomCheck > 5*60*1000)
 		{
 			lastRoomCheck = System.currentTimeMillis();
-			
+
+			List<LobbyPlayer> playerSnapshot;
+			synchronized(players)
+			{
+				playerSnapshot = new Vector<LobbyPlayer>(players);
+			}
+
 			synchronized(rooms)
 			{
-				ListIterator<Room> itr = rooms.listIterator();	    	
+				ListIterator<Room> itr = rooms.listIterator();
 		    	while(itr.hasNext())
 		    	{
 		    		Room room = itr.next();
-		    		
+
 		    		boolean roomOk = false;
-		    		
-		    		ListIterator<LobbyPlayer> pitr = players.listIterator();		    	
+
+		    		ListIterator<LobbyPlayer> pitr = playerSnapshot.listIterator();
 			    	while(pitr.hasNext())
 			    	{
 			    		LobbyPlayer tempPlayer = pitr.next();
-			    		
+
 			    		if(tempPlayer.getRoom() == room)
 			    		{
 			    			roomOk = true;
 			    			break;
 			    		}
 			    	}
-			    	
+
 			    	if(roomOk == false)
 			    	{
 			    		System.out.println("Removing room: "+room.getName());
-			    		
+
 			    		itr.remove();
 			    	}
 		    	}
-		    	
+
 			}
-			
-			ListIterator<LobbyPlayer> pitr = players.listIterator();		    	
-	    	while(pitr.hasNext())
+
+			for(LobbyPlayer tempPlayer : playerSnapshot)
 	    	{
-	    		LobbyPlayer tempPlayer = pitr.next();
-	    		
 	    		sendListRooms(tempPlayer);
-	    	}			
+	    	}
 		}
 	}
 	
