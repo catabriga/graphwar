@@ -62,24 +62,12 @@ dependencies {
 
 sourceSets.GlobalServer.compileClasspath += sourceSets.GraphServer.output
 sourceSets.GlobalServer.runtimeClasspath += sourceSets.GraphServer.output
-sourceSets.GlobalServer.compileClasspath += sourceSets.main.output
-sourceSets.GlobalServer.runtimeClasspath += sourceSets.main.output
 
 sourceSets.RoomServer.compileClasspath += sourceSets.GraphServer.output
 sourceSets.RoomServer.runtimeClasspath += sourceSets.GraphServer.output
-sourceSets.RoomServer.compileClasspath += sourceSets.main.output
-sourceSets.RoomServer.runtimeClasspath += sourceSets.main.output
 
 sourceSets.Graphwar.compileClasspath += sourceSets.GraphServer.output
 sourceSets.Graphwar.runtimeClasspath += sourceSets.GraphServer.output
-sourceSets.Graphwar.compileClasspath += sourceSets.main.output
-sourceSets.Graphwar.runtimeClasspath += sourceSets.main.output
-
-configure([sourceSets.GlobalServer, sourceSets.GraphServer, sourceSets.RoomServer, sourceSets.Graphwar]) { sourceSet ->
-    sourceSet.compileClasspath += sourceSets.main.compileClasspath
-    sourceSet.runtimeClasspath += sourceSets.main.runtimeClasspath
-}
-
 
 
 
@@ -176,6 +164,6 @@ tasks.register('runGraphwarJar', Exec) {
 }
 
 
-tasks.register('buildALL', Exec) {
+tasks.register('buildALL') {
     dependsOn graphwarShadow, globalServerShadow, roomServerShadow
 }
