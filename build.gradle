@@ -69,7 +69,10 @@ sourceSets.RoomServer.runtimeClasspath += sourceSets.GraphServer.output
 sourceSets.Graphwar.compileClasspath += sourceSets.GraphServer.output
 sourceSets.Graphwar.runtimeClasspath += sourceSets.GraphServer.output
 
-
+configure([sourceSets.GlobalServer, sourceSets.GraphServer, sourceSets.RoomServer, sourceSets.Graphwar]) { sourceSet ->
+    sourceSet.compileClasspath += sourceSets.main.compileClasspath
+    sourceSet.runtimeClasspath += sourceSets.main.runtimeClasspath
+}
 
 tasks.register('roomServerJar', Jar) {
     archiveName = 'roomServer.jar'
