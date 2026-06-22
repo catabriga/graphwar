@@ -1,0 +1,175 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2/' }
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    GlobalServer {
+        java {
+            srcDirs = [
+                    'src/GlobalServer/java'
+            ]
+        }
+        resources {
+            srcDirs = ['src/GlobalServer/resources']
+        }
+    }
+    GraphServer {
+        java {
+            srcDirs = ['src/GraphServer/java']
+        }
+
+        resources {
+            srcDirs = ['src/GraphServer/resources']
+        }
+    }
+    RoomServer {
+        java {
+            srcDirs = [
+                    'src/RoomServer/java',
+            ]
+        }
+        resources {
+            srcDirs = ['src/RoomServer/resources']
+        }
+    }
+    Graphwar {
+        java {
+            srcDirs = ['src/Graphwar/java']
+        }
+        resources {
+            srcDirs = ['src/Graphwar/resources']
+        }
+    }
+}
+
+dependencies {
+
+}
+
+sourceSets.GlobalServer.compileClasspath += sourceSets.GraphServer.output
+sourceSets.GlobalServer.runtimeClasspath += sourceSets.GraphServer.output
+sourceSets.GlobalServer.compileClasspath += sourceSets.main.output
+sourceSets.GlobalServer.runtimeClasspath += sourceSets.main.output
+
+sourceSets.RoomServer.compileClasspath += sourceSets.GraphServer.output
+sourceSets.RoomServer.runtimeClasspath += sourceSets.GraphServer.output
+sourceSets.RoomServer.compileClasspath += sourceSets.main.output
+sourceSets.RoomServer.runtimeClasspath += sourceSets.main.output
+
+sourceSets.Graphwar.compileClasspath += sourceSets.GraphServer.output
+sourceSets.Graphwar.runtimeClasspath += sourceSets.GraphServer.output
+sourceSets.Graphwar.compileClasspath += sourceSets.main.output
+sourceSets.Graphwar.runtimeClasspath += sourceSets.main.output
+
+configure([sourceSets.GlobalServer, sourceSets.GraphServer, sourceSets.RoomServer, sourceSets.Graphwar]) { sourceSet ->
+    sourceSet.compileClasspath += sourceSets.main.compileClasspath
+    sourceSet.runtimeClasspath += sourceSets.main.runtimeClasspath
+}
+
+
+tasks.register('roomServerJar', Jar) {
+    archiveName = 'roomServer.jar'
+
+    from sourceSets.RoomServer.output
+    from sourceSets.GraphServer.output
+
+    manifest {
+        attributes 'Main-Class': 'RoomServer.RoomServer'
+    }
+}
+
+tasks.register('roomServerShadow', ShadowJar) {
+    dependsOn roomServerJar
+    archiveName = 'roomServerALL.jar'
+
+    from sourceSets.RoomServer.output
+    from sourceSets.GraphServer.output
+
+    configurations = [project.configurations.runtimeClasspath]
+
+    manifest {
+        attributes 'Main-Class': 'RoomServer.RoomServer'
+    }
+}
+
+
+tasks.register('runRoomServerJar', Exec) {
+    dependsOn roomServerShadow
+    commandLine 'java', '-jar', roomServerShadow.archivePath
+}
+
+
+tasks.register('globalServerJar', Jar) {
+    archiveName = 'globalServer.jar'
+
+    from sourceSets.GlobalServer.output
+    from sourceSets.GraphServer.output
+
+    manifest {
+        attributes 'Main-Class': 'GlobalServer.GlobalServer'
+    }
+}
+
+tasks.register('globalServerShadow', ShadowJar) {
+    dependsOn globalServerJar
+    archiveName = 'globalServerALL.jar'
+
+    from sourceSets.GlobalServer.output
+    from sourceSets.GraphServer.output
+
+    configurations = [project.configurations.runtimeClasspath]
+
+    manifest {
+        attributes 'Main-Class': 'GlobalServer.GlobalServer'
+    }
+}
+
+tasks.register('runGlobalServerJar', Exec) {
+    dependsOn globalServerShadow
+    commandLine 'java', '-jar', globalServerShadow.archivePath
+}
+
+tasks.register('graphwarJar', Jar) {
+    archiveName = 'graphwar.jar'
+
+    from sourceSets.Graphwar.output
+    from sourceSets.GraphServer.output
+
+    manifest {
+        attributes 'Main-Class': 'Graphwar.Graphwar'
+    }
+}
+
+tasks.register('graphwarShadow', ShadowJar) {
+    dependsOn graphwarJar
+    archiveName = 'graphwarALL.jar'
+
+    from sourceSets.Graphwar.output
+    from sourceSets.GraphServer.output
+
+    configurations = [project.configurations.runtimeClasspath]
+
+    manifest {
+        attributes 'Main-Class': 'Graphwar.Graphwar'
+    }
+}
+
+tasks.register('runGraphwarJar', Exec) {
+    dependsOn graphwarShadow
+    commandLine 'java', '-jar', graphwarShadow.archivePath
+}
