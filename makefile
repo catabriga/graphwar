@@ -4,4 +4,7 @@ all:
 run-client:
 	./gradlew runGraphwarJar
 	
+clean:
+	./gradlew clean
+	
 
