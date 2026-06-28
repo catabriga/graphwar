@@ -214,7 +214,7 @@ public class PolishNotationFunction
 		funcStr = funcStr.replaceAll("exp", "e^");
 		funcStr = funcStr.replaceAll(",", ".");
 		
-		Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+|\\(|\\)|x|y|y'|\\+|\\*|/|\\^|sqrt|log|abs|sin|sen|cos|tan|tg|-|ln|e|pi");
+		Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]+|\\(|\\)|x|y'|y|\\+|\\*|/|\\^|sqrt|log|abs|sin|sen|cos|tan|tg|-|ln|e|pi");
 	  
 		Matcher m = pattern.matcher(funcStr);
 		
