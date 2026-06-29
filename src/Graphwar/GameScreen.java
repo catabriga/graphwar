@@ -19,6 +19,7 @@ package Graphwar;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -29,12 +30,21 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Stack;
 
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import GraphServer.Constants;
 
@@ -57,6 +67,16 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 	private GraphPlane plane;
 	private GraphTimer timer;
 	private GraphAngleDisplay angleDisplay;
+	private JDialog functionHelperWindow;
+	private JTextField targetXField;
+	private JTextField targetYField;
+	private JButton targetGenerateButton;
+	private JButton targetUndoButton;
+	private JButton targetResetButton;
+	private JLabel targetStatusLabel;
+	private JLabel targetCountLabel;
+	private ArrayList<Double> targetXs;
+	private ArrayList<Double> targetYs;
 	
 	private JLabel[] backgroundsQuit;
 	private GraphButton yesQuit;
@@ -110,6 +130,10 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 			
 			angleDisplay = new GraphAngleDisplay(graphwar);
 			angleDisplay.setBounds(10, 475, 200, 113);
+
+			targetXs = new ArrayList<Double>();
+			targetYs = new ArrayList<Double>();
+			functionHelperWindow = makeFunctionHelperWindow();
 			
 			components.push(yImg);
 			components.push(dyImg);
@@ -129,6 +153,11 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 			this.global.addActionListener(this);
 			this.funcField.addActionListener(this);
 			this.chatField.addActionListener(this);
+			this.targetGenerateButton.addActionListener(this);
+			this.targetUndoButton.addActionListener(this);
+			this.targetResetButton.addActionListener(this);
+			this.targetXField.addActionListener(this);
+			this.targetYField.addActionListener(this);
 			
 			this.dyImg.setVisible(false);
 			this.ddyImg.setVisible(false);
@@ -195,9 +224,80 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 		
 		this.setFocusable(true);
 		this.addKeyListener(this);
-		
+
 		this.addComponentsReversed(this, components);
 		this.revalidate();
+	}
+
+	private JDialog makeFunctionHelperWindow()
+	{
+		JPanel panel = new JPanel(null);
+		panel.setPreferredSize(new Dimension(260, 112));
+		panel.setBackground(new Color(238, 245, 238));
+		panel.setBorder(BorderFactory.createLineBorder(new Color(65, 100, 65)));
+
+		JLabel title = new JLabel("Aim helper");
+		title.setFont(new Font("Sans", Font.BOLD, 12));
+		title.setBounds(8, 4, 90, 18);
+		panel.add(title);
+
+		targetCountLabel = new JLabel("0 points");
+		targetCountLabel.setFont(new Font("Sans", Font.PLAIN, 11));
+		targetCountLabel.setBounds(150, 4, 100, 18);
+		panel.add(targetCountLabel);
+
+		JLabel xLabel = new JLabel("x");
+		xLabel.setBounds(8, 27, 12, 20);
+		panel.add(xLabel);
+
+		targetXField = new JTextField();
+		targetXField.setBounds(22, 27, 70, 22);
+		panel.add(targetXField);
+
+		JLabel yLabel = new JLabel("y");
+		yLabel.setBounds(102, 27, 12, 20);
+		panel.add(yLabel);
+
+		targetYField = new JTextField();
+		targetYField.setBounds(116, 27, 70, 22);
+		panel.add(targetYField);
+
+		targetGenerateButton = new JButton("Generate");
+		targetGenerateButton.setBounds(8, 53, 94, 24);
+		panel.add(targetGenerateButton);
+
+		targetUndoButton = new JButton("Undo");
+		targetUndoButton.setBounds(108, 53, 70, 24);
+		panel.add(targetUndoButton);
+
+		targetResetButton = new JButton("Reset");
+		targetResetButton.setBounds(184, 53, 68, 24);
+		panel.add(targetResetButton);
+
+		targetStatusLabel = new JLabel("Click map");
+		targetStatusLabel.setFont(new Font("Sans", Font.PLAIN, 11));
+		targetStatusLabel.setBounds(8, 82, 244, 22);
+		panel.add(targetStatusLabel);
+
+		panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK), "undoTargetPoint");
+		panel.getActionMap().put("undoTargetPoint",
+		new AbstractAction()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				undoTargetPoint();
+			}
+		}
+		);
+
+		JDialog dialog = new JDialog(graphwar, "Aim Helper", false);
+		dialog.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		dialog.setContentPane(panel);
+		dialog.pack();
+		dialog.setResizable(false);
+		dialog.setLocation(graphwar.getX()+Constants.WIDTH+10, graphwar.getY()+60);
+
+		return dialog;
 	}
 	
 	private void addComponentsReversed(JPanel panel, Stack<Component> components)
@@ -357,6 +457,326 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 			}
 			);
 		}
+
+		refreshFunctionHelper();
+	}
+
+	private void refreshFunctionHelper()
+	{
+		boolean enabled = false;
+		String status = "Normal only";
+
+		if(graphwar.getGameData().getGameMode() == Constants.NORMAL_FUNC)
+		{
+			Player player = graphwar.getGameData().getCurrentTurnPlayer();
+			enabled = player.isLocalPlayer() && !(player instanceof ComputerPlayer) && graphwar.getGameData().isDrawingFunction() == false;
+			status = "Click map";
+		}
+
+		final boolean helperEnabled = enabled;
+		final String helperStatus = status;
+
+		SwingUtilities.invokeLater(
+		new Runnable()
+		{
+			public void run()
+			{
+				targetXField.setEnabled(helperEnabled);
+				targetYField.setEnabled(helperEnabled);
+				targetGenerateButton.setEnabled(helperEnabled);
+				targetUndoButton.setEnabled(helperEnabled && targetXs.size() > 0);
+				targetResetButton.setEnabled(helperEnabled && targetXs.size() > 0);
+				targetCountLabel.setText(targetXs.size()+" points");
+				if(targetXs.size() == 0)
+				{
+					targetStatusLabel.setText(helperStatus);
+				}
+			}
+		}
+		);
+	}
+
+	private double getGameXFromBoardPixel(int x)
+	{
+		return ((double)x - (double)Constants.PLANE_LENGTH/2.0)
+				* (double)Constants.PLANE_GAME_LENGTH/(double)Constants.PLANE_LENGTH;
+	}
+
+	private double getGameYFromBoardPixel(int y)
+	{
+		return ((double)Constants.PLANE_HEIGHT/2.0 - (double)y)
+				* (double)Constants.PLANE_GAME_LENGTH/(double)Constants.PLANE_LENGTH;
+	}
+
+	private int getBoardPixelXFromGame(double x)
+	{
+		return (int)Math.round(Constants.PLANE_LENGTH*x/Constants.PLANE_GAME_LENGTH + Constants.PLANE_LENGTH/2.0);
+	}
+
+	private int getBoardPixelYFromGame(double y)
+	{
+		return (int)Math.round(-Constants.PLANE_LENGTH*y/Constants.PLANE_GAME_LENGTH + Constants.PLANE_HEIGHT/2.0);
+	}
+
+	private void selectTargetFromPlane(int displayX, int displayY)
+	{
+		if(graphwar.getGameData().getGameMode() != Constants.NORMAL_FUNC)
+		{
+			targetStatusLabel.setText("Normal only");
+			return;
+		}
+
+		int boardX = displayX;
+		if(graphwar.getGameData().isTerrainReversed())
+		{
+			boardX = Constants.PLANE_LENGTH - boardX;
+		}
+
+		int boardY = displayY;
+
+		double x = getGameXFromBoardPixel(boardX);
+		double y = getGameYFromBoardPixel(boardY);
+
+		addTargetPoint(x, y);
+	}
+
+	private void addTargetPointFromFields()
+	{
+		double x;
+		double y;
+
+		try
+		{
+			x = Double.parseDouble(targetXField.getText().trim().replace(',', '.'));
+			y = Double.parseDouble(targetYField.getText().trim().replace(',', '.'));
+		}
+		catch(NumberFormatException e)
+		{
+			targetStatusLabel.setText("Bad point");
+			return;
+		}
+
+		addTargetPoint(x, y);
+	}
+
+	private void addTargetPoint(double x, double y)
+	{
+		targetXField.setText(formatNumber(x));
+		targetYField.setText(formatNumber(y));
+		targetXs.add(new Double(x));
+		targetYs.add(new Double(y));
+		targetStatusLabel.setText("Point added");
+		refreshTargetMarkers();
+		refreshFunctionHelper();
+	}
+
+	private String formatNumber(double value)
+	{
+		if(Math.abs(value) < 0.00005)
+		{
+			value = 0;
+		}
+
+		String text = String.format(Locale.US, "%.4f", value);
+
+		while(text.indexOf('.') >= 0 && text.endsWith("0"))
+		{
+			text = text.substring(0, text.length()-1);
+		}
+
+		if(text.endsWith("."))
+		{
+			text = text.substring(0, text.length()-1);
+		}
+
+		return text;
+	}
+
+	private String formatSignedNumber(double value)
+	{
+		String number = formatNumber(Math.abs(value));
+		if(value < 0)
+		{
+			return "-"+number;
+		}
+
+		return "+"+number;
+	}
+
+	private double getFunctionX(Player player, double worldX)
+	{
+		if(player.getTeam() == Constants.TEAM2)
+		{
+			return -worldX;
+		}
+
+		return worldX;
+	}
+
+	private void refreshTargetMarkers()
+	{
+		int[] markerXs = new int[targetXs.size()];
+		int[] markerYs = new int[targetYs.size()];
+
+		for(int i=0; i<targetXs.size(); i++)
+		{
+			markerXs[i] = getBoardPixelXFromGame(targetXs.get(i).doubleValue());
+			markerYs[i] = getBoardPixelYFromGame(targetYs.get(i).doubleValue());
+		}
+
+		plane.setTargetMarkers(markerXs, markerYs, targetXs.size());
+	}
+
+	private void undoTargetPoint()
+	{
+		if(targetXs.size() == 0)
+		{
+			targetStatusLabel.setText("No points");
+			return;
+		}
+
+		int last = targetXs.size()-1;
+		targetXs.remove(last);
+		targetYs.remove(last);
+		targetStatusLabel.setText("Undone");
+
+		if(targetXs.size() > 0)
+		{
+			targetXField.setText(formatNumber(targetXs.get(targetXs.size()-1).doubleValue()));
+			targetYField.setText(formatNumber(targetYs.get(targetYs.size()-1).doubleValue()));
+		}
+		else
+		{
+			targetXField.setText("");
+			targetYField.setText("");
+		}
+
+		refreshTargetMarkers();
+		refreshFunctionHelper();
+	}
+
+	private void resetTargetPoints()
+	{
+		targetXs.clear();
+		targetYs.clear();
+		targetXField.setText("");
+		targetYField.setText("");
+		targetStatusLabel.setText("Cleared");
+		refreshTargetMarkers();
+		refreshFunctionHelper();
+	}
+
+	private String makePolylineFunction(Player player)
+	{
+		Soldier soldier = player.getCurrentTurnSoldier();
+		double soldierX = getGameXFromBoardPixel(soldier.getX());
+		double soldierY = getGameYFromBoardPixel(soldier.getY());
+
+		int numPoints = targetXs.size()+1;
+		double[] xs = new double[numPoints];
+		double[] ys = new double[numPoints];
+
+		xs[0] = getFunctionX(player, soldierX);
+		ys[0] = 0;
+
+		for(int i=0; i<targetXs.size(); i++)
+		{
+			xs[i+1] = getFunctionX(player, targetXs.get(i).doubleValue());
+			ys[i+1] = targetYs.get(i).doubleValue() - soldierY;
+		}
+
+		double[] slopes = new double[numPoints-1];
+		for(int i=0; i<slopes.length; i++)
+		{
+			double dx = xs[i+1] - xs[i];
+			if(Math.abs(dx) < 0.0001)
+			{
+				targetStatusLabel.setText("Vertical at point "+(i+1));
+				return null;
+			}
+			else if(dx < 0)
+			{
+				targetStatusLabel.setText("Point "+(i+1)+" is behind");
+				return null;
+			}
+
+			slopes[i] = (ys[i+1] - ys[i])/dx;
+		}
+
+		double intercept = ys[0] - slopes[0]*xs[0];
+		StringBuilder function = new StringBuilder();
+		function.append("(");
+		function.append(formatNumber(slopes[0])).append("*x");
+
+		if(Math.abs(intercept) >= 0.00005)
+		{
+			function.append(formatSignedNumber(intercept));
+		}
+
+		for(int i=1; i<slopes.length; i++)
+		{
+			double delta = slopes[i] - slopes[i-1];
+
+			if(Math.abs(delta) < 0.00005)
+			{
+				continue;
+			}
+
+			String offset = formatSignedNumber(-xs[i]);
+			function.append(formatSignedNumber(delta));
+			function.append("*((x");
+			function.append(offset);
+			function.append("+abs(x");
+			function.append(offset);
+			function.append("))/2)");
+		}
+
+		function.append(")");
+
+		return function.toString();
+	}
+
+	private void generateFunctionToTarget()
+	{
+		if(graphwar.getGameData().getGameMode() != Constants.NORMAL_FUNC)
+		{
+			targetStatusLabel.setText("Normal only");
+			return;
+		}
+
+		Player player = graphwar.getGameData().getCurrentTurnPlayer();
+		if(player.isLocalPlayer() == false || player instanceof ComputerPlayer || graphwar.getGameData().isDrawingFunction())
+		{
+			targetStatusLabel.setText("Not your turn");
+			return;
+		}
+
+		if(targetXs.size() == 0)
+		{
+			targetStatusLabel.setText("No points");
+			return;
+		}
+
+		String function = makePolylineFunction(player);
+		if(function == null)
+		{
+			return;
+		}
+
+		try
+		{
+			@SuppressWarnings("unused")
+			Function testFunction = new Function(function);
+		}
+		catch(MalformedFunction e)
+		{
+			targetStatusLabel.setText("Invalid");
+			return;
+		}
+
+		funcField.setText(function);
+		graphwar.getGameData().sendFunctionPreview(function);
+		targetStatusLabel.setText("Generated");
 	}
 	
 	public boolean isShowMessageVisible()
@@ -435,6 +855,22 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 						graphwar.getGameData().sendFunction(function);
 					}
 				}
+			}
+			else if(arg0.getSource()==targetGenerateButton)
+			{
+				generateFunctionToTarget();
+			}
+			else if(arg0.getSource()==targetUndoButton)
+			{
+				undoTargetPoint();
+			}
+			else if(arg0.getSource()==targetResetButton)
+			{
+				resetTargetPoints();
+			}
+			else if(arg0.getSource()==targetXField || arg0.getSource()==targetYField)
+			{
+				addTargetPointFromFields();
 			}
 			else if(arg0.getSource()==global)
 			{
@@ -519,9 +955,37 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 		}
 	}
 
+	private void showFunctionHelperWindow()
+	{
+		SwingUtilities.invokeLater(
+		new Runnable()
+		{
+			public void run()
+			{
+				refreshFunctionHelper();
+				functionHelperWindow.setVisible(true);
+			}
+		}
+		);
+	}
+
+	private void hideFunctionHelperWindow()
+	{
+		SwingUtilities.invokeLater(
+		new Runnable()
+		{
+			public void run()
+			{
+				functionHelperWindow.setVisible(false);
+			}
+		}
+		);
+	}
+
 	public void startPanel() 
 	{
 		showFuncType();
+		showFunctionHelperWindow();
 		
 		this.plane.startAnimating();
 		this.timer.startRunning();
@@ -529,12 +993,19 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 
 	public void stopPanel() 
 	{
+		hideFunctionHelperWindow();
 		this.plane.stopAnimating();
 		this.timer.stopRunning();
 	}
 	
 	public void keyPressed(KeyEvent e) 
 	{		
+		if(e.isControlDown() && e.getKeyCode() == KeyEvent.VK_Z)
+		{
+			undoTargetPoint();
+			return;
+		}
+
 		if(graphwar.getGameData().getGameMode() == Constants.SND_ODE)
 		{
 			if(e.getKeyCode() == KeyEvent.VK_UP)
@@ -569,6 +1040,11 @@ public class GameScreen extends JPanel implements ActionListener, StartStopPanel
 
 	public void mouseClicked(MouseEvent arg0) 
 	{
+		if(arg0.getSource() == plane && SwingUtilities.isLeftMouseButton(arg0))
+		{
+			selectTargetFromPlane(arg0.getX(), arg0.getY());
+		}
+
 		this.requestFocus();
 	}
 

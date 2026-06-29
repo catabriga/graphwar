@@ -19,6 +19,7 @@ package Graphwar;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -32,6 +33,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -78,6 +80,9 @@ public class GraphPlane extends JPanel implements ActionListener
 	private boolean repaintBack;
 	
 	private boolean nextMarker;
+	private int[] targetMarkerXs;
+	private int[] targetMarkerYs;
+	private int numTargetMarkers;
 	
 	private Timer timer;
 	
@@ -104,6 +109,9 @@ public class GraphPlane extends JPanel implements ActionListener
 		lastStepDrawn = 0;
 		repaintBack = true;
 		nextMarker = false;
+		targetMarkerXs = new int[0];
+		targetMarkerYs = new int[0];
+		numTargetMarkers = 0;
 		
 		background = new BufferedImage(Constants.PLANE_LENGTH, Constants.PLANE_HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
 		backg = background.createGraphics();
@@ -222,6 +230,130 @@ public class GraphPlane extends JPanel implements ActionListener
 		
 		repaintBack = true;
 	}
+
+	public void setTargetMarker(int x, int y)
+	{
+		int[] xs = {x};
+		int[] ys = {y};
+		setTargetMarkers(xs, ys, 1);
+	}
+
+	public void setTargetMarkers(int[] xs, int[] ys, int count)
+	{
+		if(count < 0)
+		{
+			count = 0;
+		}
+
+		if(count > xs.length)
+		{
+			count = xs.length;
+		}
+
+		if(count > ys.length)
+		{
+			count = ys.length;
+		}
+
+		targetMarkerXs = new int[count];
+		targetMarkerYs = new int[count];
+		numTargetMarkers = count;
+
+		for(int i=0; i<count; i++)
+		{
+			targetMarkerXs[i] = clampPlaneX(xs[i]);
+			targetMarkerYs[i] = clampPlaneY(ys[i]);
+		}
+
+		repaint();
+	}
+
+	private int clampPlaneX(int x)
+	{
+		if(x < 0)
+		{
+			return 0;
+		}
+		else if(x >= Constants.PLANE_LENGTH)
+		{
+			return Constants.PLANE_LENGTH - 1;
+		}
+
+		return x;
+	}
+
+	private int clampPlaneY(int y)
+	{
+		if(y < 0)
+		{
+			return 0;
+		}
+		else if(y >= Constants.PLANE_HEIGHT)
+		{
+			return Constants.PLANE_HEIGHT - 1;
+		}
+
+		return y;
+	}
+
+	private void drawTargetMarker(Graphics g, boolean reversed)
+	{
+		if(numTargetMarkers == 0)
+		{
+			return;
+		}
+
+		Player currentPlayer = graphwar.getGameData().getCurrentTurnPlayer();
+		Soldier currentSoldier = currentPlayer.getCurrentTurnSoldier();
+		int lastX = currentSoldier.getX();
+		if(reversed)
+		{
+			lastX = Constants.PLANE_LENGTH - lastX;
+		}
+		int lastY = currentSoldier.getY();
+
+		for(int i=0; i<numTargetMarkers; i++)
+		{
+			int x = targetMarkerXs[i];
+			if(reversed)
+			{
+				x = Constants.PLANE_LENGTH - x;
+			}
+
+			int y = targetMarkerYs[i];
+
+			g.setColor(Color.BLACK);
+			g.drawLine(lastX, lastY, x, y);
+			g.setColor(Color.ORANGE);
+			g.drawLine(lastX, lastY-1, x, y-1);
+
+			lastX = x;
+			lastY = y;
+		}
+
+		for(int i=0; i<numTargetMarkers; i++)
+		{
+			int x = targetMarkerXs[i];
+			if(reversed)
+			{
+				x = Constants.PLANE_LENGTH - x;
+			}
+
+			int y = targetMarkerYs[i];
+
+			g.setColor(Color.BLACK);
+			g.drawOval(x-7, y-7, 14, 14);
+			g.drawLine(x-10, y, x+10, y);
+			g.drawLine(x, y-10, x, y+10);
+			g.drawString(Integer.toString(i+1), x+8, y-8);
+
+			g.setColor(Color.ORANGE);
+			g.drawOval(x-6, y-6, 12, 12);
+			g.drawLine(x-9, y, x+9, y);
+			g.drawLine(x, y-9, x, y+9);
+			g.drawString(Integer.toString(i+1), x+9, y-7);
+		}
+	}
 	
 	public void paintComponent(Graphics g)
 	{		
@@ -252,6 +384,7 @@ public class GraphPlane extends JPanel implements ActionListener
 	//		times[2] = System.nanoTime();
 	//	}
 		
+		drawTargetMarker(g, reversed);
 		drawSoldiers(g, reversed);	//	times[3] = System.nanoTime();
 		drawFunction(g, reversed);	//	times[4] = System.nanoTime();
 		drawExplosion(g, reversed);	//	times[5] = System.nanoTime();
@@ -694,6 +827,65 @@ public class GraphPlane extends JPanel implements ActionListener
 		g.setColor(Color.BLACK);
 		g.drawString(player.getName(), textX, textY);
 	}
+
+	private double getRealX(Soldier soldier)
+	{
+		return ((double)soldier.getX() - (double)Constants.PLANE_LENGTH/2.0)
+				* (double)Constants.PLANE_GAME_LENGTH/(double)Constants.PLANE_LENGTH;
+	}
+
+	private double getRealY(Soldier soldier)
+	{
+		return ((double)Constants.PLANE_HEIGHT/2.0 - (double)soldier.getY())
+				* (double)Constants.PLANE_GAME_LENGTH/(double)Constants.PLANE_LENGTH;
+	}
+
+	private void paintPlayerCoordinates(Graphics g, int x, int y, Player player, Soldier soldier)
+	{
+		String coordinates = String.format(Locale.US, "(%.1f, %.1f)", getRealX(soldier), getRealY(soldier));
+		FontMetrics fontMetrics = g.getFontMetrics();
+
+		int border = 3;
+		int textLength = fontMetrics.stringWidth(coordinates);
+
+		int borderX = x-textLength/2-border;
+		int borderY = y+2+2*Constants.SOLDIER_RADIUS;
+		int textX = x-textLength/2;
+		int textY = y+15+2*Constants.SOLDIER_RADIUS;
+
+		if(borderY + 15 > Constants.PLANE_HEIGHT)
+		{
+			borderY = y-30-2*Constants.SOLDIER_RADIUS;
+			textY = y-17-2*Constants.SOLDIER_RADIUS;
+		}
+
+		if(borderY < 0)
+		{
+			borderY = y+2+2*Constants.SOLDIER_RADIUS;
+			textY = y+15+2*Constants.SOLDIER_RADIUS;
+		}
+
+		if(borderX < 0)
+		{
+			textX = textX - borderX;
+			borderX = 0;
+		}
+
+		if(borderX + textLength+2*border > Constants.PLANE_LENGTH)
+		{
+			textX = (textX - borderX) + Constants.PLANE_LENGTH - textLength-2*border;
+			borderX = Constants.PLANE_LENGTH - textLength-2*border;
+		}
+
+		g.setColor(transparentWhite);
+		g.fillRoundRect(borderX, borderY, textLength+2*border, 15, 7, 7);
+
+		g.setColor(player.getColor());
+		g.drawRoundRect(borderX, borderY, textLength+2*border, 15, 7, 7);
+
+		g.setColor(Color.BLACK);
+		g.drawString(coordinates, textX, textY);
+	}
 	
 	private void drawPlayersNames(Graphics g, boolean reversed)
 	{
@@ -726,6 +918,7 @@ public class GraphPlane extends JPanel implements ActionListener
 				if(soldiers[j].isAlive())
 				{					
 					paintPlayerName(g2d, drawX, drawY, player);
+					paintPlayerCoordinates(g2d, drawX, drawY, player, soldiers[j]);
 				}
 				else if(soldiers[j].isExploding())
 				{					
@@ -739,6 +932,7 @@ public class GraphPlane extends JPanel implements ActionListener
 					g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 				
 					paintPlayerName(g2d, drawX, drawY, player);
+					paintPlayerCoordinates(g2d, drawX, drawY, player, soldiers[j]);
 					
 					g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 				}
