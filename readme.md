@@ -1,3 +1,32 @@
+## Running The Game
+
+Compile the game using the make command (or on your favorite IDE).
+
+To run the game execute graphwar.jar.
+
+## Running Local Servers
+
+To run a local server and connect to it you must pass the ip of the local server to graphwar
+and to the globalServer as a command line argument. So to start a server locally the commands are:
+
+* java -jar globalServer.jar [your-server-ip]
+* java -jar roomServer.jar [your-server-ip]
+* java -jar graphwar.jar [your-server-ip]
+
+
+
+## Clone and run game from terminal
+
+Open terminal
+
+You man need to install ```openjdk-11-jdk``` if you havent already
+
+```
+git clone git@github.com:catabriga/graphwar.git
+cd graphwar
+make
+java -jar graphwar.jar
+```
 
 # Graphwar Tutorial
 
@@ -97,17 +126,3 @@ The available commands are:
 
 Just type them on the game chat to use them.
 
-## Running The Game
-
-Compile the game using the make command (or on your favorite IDE).
-
-To run the game execute graphwar.jar.
-
-## Running Local Servers
-
-To run a local server and connect to it you must pass the ip of the local server to graphwar
-and to the globalServer as a command line argument. So to start a server locally the commands are:
-
-* java -jar globalServer.jar [your-server-ip]
-* java -jar roomServer.jar [your-server-ip]
-* java -jar graphwar.jar [your-server-ip]
