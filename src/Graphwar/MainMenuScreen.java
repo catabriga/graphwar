@@ -295,7 +295,7 @@ public class MainMenuScreen extends JPanel implements ActionListener
 		showMessage = true;
 		this.message = message;
 		
-		FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics (Constants.NAME_FONT);		
+				FontMetrics fontMetrics = this.getFontMetrics(Constants.NAME_FONT);
 		int messageLength = fontMetrics.stringWidth(message);
 		
 		this.messageX = (Constants.WIDTH - messageLength)/2;

@@ -1,4 +1,4 @@
-FROM java:openjdk-7-jdk
+FROM amazoncorretto:8
 
 RUN mkdir /compile
 
