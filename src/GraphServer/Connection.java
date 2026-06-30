@@ -100,4 +100,19 @@ public class Connection
 		
 		return line;
 	}
+	
+	public String readMessageWithTimeout(int timeout) throws IOException
+	{
+		int oldTimeout = socket.getSoTimeout();
+		socket.setSoTimeout(timeout);
+		
+		try
+		{
+			return in.readLine();
+		}
+		finally
+		{
+			socket.setSoTimeout(oldTimeout);
+		}
+	}
 }
