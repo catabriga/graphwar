@@ -26,8 +26,10 @@ import java.net.Socket;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -44,6 +46,7 @@ public class GlobalServer implements Runnable
 	private List<Room> rooms;
 
 	private long lastRoomCheck;
+	private Map<String, Integer> ipConnectionCount;
 
 	private static final String STATUS_FILE = "/home/graphwar/graphwar/status.html";
 	private static final long STATUS_INTERVAL = 30 * 1000;
@@ -52,6 +55,7 @@ public class GlobalServer implements Runnable
 	{
 		this.players = new Vector<LobbyPlayer>();
 		this.rooms = new Vector<Room>();
+		this.ipConnectionCount = new HashMap<String, Integer>();
 
 		lastRoomCheck = System.currentTimeMillis();
 
@@ -184,10 +188,44 @@ public class GlobalServer implements Runnable
     	{
     		players.remove(player);
     	}
+
+    	decrementIpCount(player.getIpAddress());
     	
     	if(player.getRoom() != null)
     	{
     		removeRoom(player.getRoom());
+    	}
+    }
+    
+    public void rejectPlayer(LobbyPlayer player)
+    {
+    	player.disconnect();
+    	
+    	synchronized(players)
+    	{
+    		players.remove(player);
+    	}
+
+    	decrementIpCount(player.getIpAddress());
+    }
+
+    private void decrementIpCount(String ip)
+    {
+    	synchronized(ipConnectionCount)
+    	{
+    		Integer c = ipConnectionCount.get(ip);
+    		if(c != null)
+    		{
+    			int newCount = c.intValue() - 1;
+    			if(newCount <= 0)
+    			{
+    				ipConnectionCount.remove(ip);
+    			}
+    			else
+    			{
+    				ipConnectionCount.put(ip, newCount);
+    			}
+    		}
     	}
     }
     
@@ -364,6 +402,22 @@ public class GlobalServer implements Runnable
 	
 		if(connected)
 		{
+			String ip = tempSocket.getInetAddress().getHostAddress();
+
+			int count;
+			synchronized(ipConnectionCount)
+			{
+				Integer c = ipConnectionCount.get(ip);
+				count = (c == null) ? 0 : c.intValue();
+			}
+
+			if(count >= Constants.MAX_CONNECTIONS_PER_IP)
+			{
+				System.out.println("Rejected connection from " + ip + ": too many connections (" + count + ")");
+				try { tempSocket.close(); } catch (IOException e) { }
+				return;
+			}
+
 			Connection connection = new Connection(tempSocket);
 
 			LobbyPlayer player = new LobbyPlayer(connection, this);
@@ -371,6 +425,11 @@ public class GlobalServer implements Runnable
 			synchronized(players)
 			{
 				this.players.add(player);
+			}
+
+			synchronized(ipConnectionCount)
+			{
+				ipConnectionCount.put(ip, count + 1);
 			}
 
 			new Thread(player).start();

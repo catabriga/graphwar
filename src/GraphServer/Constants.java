@@ -45,6 +45,9 @@ public class Constants
 	
 	public static final int TURN_TIME = 60000;
 	
+	public static final int MAX_NAME_LENGTH = 256;
+	public static final int MAX_CONNECTIONS_PER_IP = 32;
+
 	public static final int MAX_PLAYERS = 10;
 	public static final int MAX_SOLDIERS_PER_PLAYER = 4;
 	public static final int MAX_CLIENTS = 10;
