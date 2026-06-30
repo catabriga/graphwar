@@ -134,6 +134,19 @@ public class LobbyPlayer implements Runnable
 			
 			System.out.println("New name: "+name);
 			
+			if(name == null)
+			{
+				this.globalServer.rejectPlayer(this);
+				return;
+			}
+
+			if(name.length() > Constants.MAX_NAME_LENGTH || name.indexOf('&') != -1)
+			{
+				System.out.println("Rejected invalid name from " + getIpAddress() + ": length=" + name.length());
+				this.globalServer.rejectPlayer(this);
+				return;
+			}
+
 			if(name.compareTo(Constants.DUMMY_NAME) == 0)
 			{
 				this.dummy = true;
