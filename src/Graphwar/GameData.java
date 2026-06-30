@@ -366,7 +366,7 @@ public class GameData implements Runnable
 	{
 		if(players.size() < Constants.MAX_PLAYERS)
 		{
-			nextPCs.add(new Integer(level));
+			nextPCs.add(level);
 			
 			addPlayer(name);
 		}
