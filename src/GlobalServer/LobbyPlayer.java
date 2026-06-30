@@ -131,15 +131,50 @@ public class LobbyPlayer implements Runnable
 		try 
 		{
 			this.name = connection.readMessage();
-			
+
 			System.out.println("New name: "+name);
-			
+
+			if(name == null)
+			{
+				this.globalServer.removePlayer(this);
+				return;
+			}
+
 			if(name.compareTo(Constants.DUMMY_NAME) == 0)
 			{
 				this.dummy = true;
 			}
 			else
 			{
+				boolean looksLikeHttp = name.startsWith("GET ") || name.startsWith("POST ") ||
+				                       name.startsWith("HEAD ") || name.startsWith("PUT ") ||
+				                       name.startsWith("DELETE ") || name.startsWith("OPTIONS ") ||
+				                       name.startsWith("TRACE ") || name.startsWith("CONNECT ") ||
+				                       name.startsWith("PATCH ");
+
+				if (looksLikeHttp)
+				{
+					boolean hasSecondLine = false;
+					try
+					{
+						String secondLine = connection.readMessageWithTimeout(200);
+						if (secondLine != null)
+						{
+							hasSecondLine = true;
+						}
+					}
+					catch (java.io.IOException e)
+					{
+					}
+
+					if (hasSecondLine)
+					{
+						System.out.println("Rejected HTTP request from " + getIpAddress() + ": " + name);
+						this.globalServer.removePlayer(this);
+						return;
+					}
+				}
+
 				this.dummy = false;
 			}
 		}
