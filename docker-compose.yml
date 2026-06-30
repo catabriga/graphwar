@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  graphwar:
+    image: graphwar
+    container_name: graphwar
+    build:
+      context: .
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=${DISPLAY}
+    command: java -jar graphwar.jar
