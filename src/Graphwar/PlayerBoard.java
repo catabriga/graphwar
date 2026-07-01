@@ -175,6 +175,8 @@ public class PlayerBoard extends JPanel
 		{
 			if(arg0.getSource() == switchSide)
 			{
+				if(player.getReady())
+					return;
 				graphwar.getGameData().switchSide(player);
 			}
 			else if(arg0.getSource() == removePlayer)
@@ -183,6 +185,8 @@ public class PlayerBoard extends JPanel
 			}
 			else if(isAddSoldier(arg0.getSource()))
 			{
+				if(player.getReady())
+					return;
 				graphwar.getGameData().addSoldier(player);
 			}
 		}
@@ -193,6 +197,8 @@ public class PlayerBoard extends JPanel
 			{
 				if(isAddSoldier(arg0.getSource()))
 				{
+					if(player.getReady())
+						return;
 					graphwar.getGameData().removeSoldier(player);
 				}
 			}
@@ -271,9 +277,11 @@ public class PlayerBoard extends JPanel
 		{
 			if(playersEntries[i].player == player)
 			{
+				boolean canInteract = (player.isLocalPlayer() || graphwar.getGameData().isLeader()) && !player.getReady();
+				
 				if(player.getTeam() == Constants.TEAM1)
 				{
-					if(player.isLocalPlayer() || graphwar.getGameData().isLeader())
+					if(canInteract)
 					{
 						playersEntries[i].switchSide.updateImages(switchNormal, switchOver, switchMask);
 						playersEntries[i].removePlayer.updateImages(removeNormal, removeOver, removeMask);
@@ -298,7 +306,7 @@ public class PlayerBoard extends JPanel
 				}
 				else
 				{
-					if(player.isLocalPlayer() || graphwar.getGameData().isLeader())
+					if(canInteract)
 					{
 						playersEntries[i].switchSide.updateImages(switchNormalMirror, switchOverMirror, switchMaskMirror);
 						playersEntries[i].removePlayer.updateImages(removeNormalMirror, removeOverMirror, removeMaskMirror);

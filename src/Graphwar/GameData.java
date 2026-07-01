@@ -740,6 +740,7 @@ public class GameData implements Runnable
 		
 		if(gameState == Constants.PRE_GAME)
 		{
+			((PreGameScreen)graphwar.getUI().getScreen(Constants.PRE_GAME_SCREEN)).updatePlayer(player);
 			((PreGameScreen)graphwar.getUI().getScreen(Constants.PRE_GAME_SCREEN)).repaint();
 		}
 		

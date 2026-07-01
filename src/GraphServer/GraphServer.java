@@ -572,6 +572,28 @@ public class GraphServer implements Runnable
 		sendMessageAll(message);
 	}
 	
+	private boolean isPlayerReady(int playerID)
+	{
+		ListIterator<ClientConnection> itr = clients.listIterator();
+		
+		while(itr.hasNext())
+		{
+			ClientConnection tmpClient = itr.next();
+			List<Player> players = tmpClient.getPlayers();
+			ListIterator<Player> pitr = players.listIterator();
+			
+			while(pitr.hasNext())
+			{
+				Player player = pitr.next();
+				if(player.getID() == playerID)
+				{
+					return player.getReady();
+				}
+			}
+		}
+		return false;
+	}
+	
 	private boolean checkAllReady()
 	{
 		ListIterator<ClientConnection> itr = clients.listIterator();
@@ -1105,7 +1127,6 @@ public class GraphServer implements Runnable
 						client.addPlayer(player);
 						players.add(player);
 						
-						setEveryoneNotReady();
 						sendAddPlayerMessage(player, client);
 					}
 				}break;
@@ -1115,10 +1136,12 @@ public class GraphServer implements Runnable
 					int team = Integer.parseInt(info[1]);
 					int playerID = Integer.parseInt(info[2]);
 					
+					if(isPlayerReady(playerID))
+						break;
+					
 					// Only send message to everyone if player belongs to that client
 					if(setTeam(team, playerID, client))
 					{
-						setEveryoneNotReady();
 						sendMessageAll(message);
 					}
 				}break;
@@ -1139,9 +1162,11 @@ public class GraphServer implements Runnable
 				{
 					int playerID = Integer.parseInt(info[1]);
 					
+					if(isPlayerReady(playerID))
+						break;
+					
 					if(addSoldier(playerID, client))
 					{
-						setEveryoneNotReady();
 						sendMessageAll(message);
 					}
 				}break;
@@ -1150,9 +1175,11 @@ public class GraphServer implements Runnable
 				{
 					int playerID = Integer.parseInt(info[1]);
 					
+					if(isPlayerReady(playerID))
+						break;
+					
 					if(removeSoldier(playerID, client))
 					{
-						setEveryoneNotReady();
 						sendMessageAll(message);
 					}
 				}break;
